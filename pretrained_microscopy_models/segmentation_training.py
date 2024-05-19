@@ -272,6 +272,9 @@ def segmentation_models_inference(io, model, preprocessing_fn, device = None, ba
             output[:,:,i+1] = output[:,:,i+1] > probabilities[i]
         return output[:, :, 1:].astype('bool')
 
+def print_layer_trainability(model):
+    for name, param in model.named_parameters():
+        print(f"Layer: {name} | Trainable: {'Yes' if param.requires_grad else 'No'}")
 
 def train_segmentation_model(model,
                              architecture,
@@ -332,7 +335,10 @@ def train_segmentation_model(model,
     
     if multi_gpu:
         model = torch.nn.DataParallel(model).cuda()
-
+    
+    # Inspect initial layer trainability
+    print("Initial layer trainability:")
+    print_layer_trainability(model)
         
     # create training dataloaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, 
